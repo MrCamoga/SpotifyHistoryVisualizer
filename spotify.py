@@ -8,8 +8,8 @@ datafiles = list(filter(lambda x: re.search('StreamingHistory[0-9]*\.json',x),os
 numprint = 10
 
 
-artistBoth = dict()
-songBoth = dict()
+artists = dict()
+songs = dict()
 
 topartistday = dict()
 counttopartistday = dict()
@@ -17,17 +17,14 @@ counttopartistday = dict()
 topsongday = dict()
 counttopsongday = dict()
 
-
 topartistdayTime = dict()
 timetopartistday = dict()
 
 topsongdayTime = dict()
 timetopsongday = dict()
 
-
-
-dayArtistBoth = dict()
-daySongBoth = dict()
+dayArtists = dict()
+daySongs = dict()
 
 for datafile in datafiles:
     with open(datafile,'r',encoding="utf-8") as file:
@@ -40,51 +37,51 @@ for datafile in datafiles:
             time = int(song['msPlayed'])/60000.0
             
             # artist
-            artistBoth.setdefault(artist,[0,0])
-            artistBoth[artist][0] += 1
-            artistBoth[artist][1] += time
+            artists.setdefault(artist,[0,0])
+            artists[artist][0] += 1
+            artists[artist][1] += time
             
             # song
-            songBoth.setdefault(trackname,[0,0])
-            songBoth[trackname][0] += 1
-            songBoth[trackname][1] += time
+            songs.setdefault(trackname,[0,0])
+            songs[trackname][0] += 1
+            songs[trackname][1] += time
 
             # daily artists
-            dayArtistBoth.setdefault(day,dict())
-            dayArtistBoth[day].setdefault(artist,[0,0])
-            dayArtistBoth[day][artist][0] += 1
-            dayArtistBoth[day][artist][1] += time
+            dayArtists.setdefault(day,dict())
+            dayArtists[day].setdefault(artist,[0,0])
+            dayArtists[day][artist][0] += 1
+            dayArtists[day][artist][1] += time
             
             # daily songs
-            daySongBoth.setdefault(day,dict())
-            daySongBoth[day].setdefault(trackname,[0,0])
-            daySongBoth[day][trackname][0] += 1
-            daySongBoth[day][trackname][1] += time
+            daySongs.setdefault(day,dict())
+            daySongs[day].setdefault(trackname,[0,0])
+            daySongs[day][trackname][0] += 1
+            daySongs[day][trackname][1] += time
             
 # artist day count
-for day, artists in dayArtistBoth.items():
-    topartistday[day] = sorted(dayArtistBoth[day].items(),key=lambda x: -x[1][0])[0]
+for day in dayArtists:
+    topartistday[day] = sorted(dayArtists[day].items(),key=lambda x: -x[1][0])[0]
 
 for artist in topartistday.values():
     counttopartistday[artist[0]] = counttopartistday.get(artist[0],0)+1
     
 # artist day time
-for day, artists in dayArtistBoth.items():
-    topartistdayTime[day] = sorted(dayArtistBoth[day].items(),key=lambda x: -x[1][1])[0]
+for day in dayArtists:
+    topartistdayTime[day] = sorted(dayArtists[day].items(),key=lambda x: -x[1][1])[0]
 
 for artist in topartistdayTime.values():
     timetopartistday[artist[0]] = timetopartistday.get(artist[0],0)+1
 
 # song day count
-for day, songs in daySongBoth.items():
-    topsongday[day] = sorted(daySongBoth[day].items(),key=lambda x: -x[1][0])[0]
+for day in daySongs:
+    topsongday[day] = sorted(daySongs[day].items(),key=lambda x: -x[1][0])[0]
 
 for song in topsongday.values():
     counttopsongday[song[0]] = counttopsongday.get(song[0],0)+1
     
 # song day time
-for day, songs in daySongBoth.items():
-    topsongdayTime[day] = sorted(daySongBoth[day].items(),key=lambda x: -x[1][1])[0]
+for day in daySongs:
+    topsongdayTime[day] = sorted(daySongs[day].items(),key=lambda x: -x[1][1])[0]
 
 for song in topsongdayTime.values():
     timetopsongday[song[0]] = timetopsongday.get(song[0],0)+1
@@ -97,19 +94,19 @@ timetopsongday = sorted(list(timetopsongday.items()),key=lambda x: -x[1])
 
 
 print("Most listened artists (minutes):\n")
-print(*sorted(list(artistBoth.items()),key=lambda x: -x[1][1])[0:numprint],sep="\n")
+print(*sorted(list(artists.items()),key=lambda x: -x[1][1])[0:numprint],sep="\n")
 
 print()
 print("Most listened artists (count):\n")
-print(*sorted(list(artistBoth.items()),key=lambda x: -x[1][0])[0:numprint],sep="\n")
+print(*sorted(list(artists.items()),key=lambda x: -x[1][0])[0:numprint],sep="\n")
 
 print()
 print("Most listened songs (minutes):\n")
-print(*sorted(list(songBoth.items()),key=lambda x: -x[1][1])[0:numprint],sep="\n")
+print(*sorted(list(songs.items()),key=lambda x: -x[1][1])[0:numprint],sep="\n")
 
 print()
 print("Most listened songs (count):\n")
-print(*sorted(list(songBoth.items()),key=lambda x: -x[1][0])[0:numprint],sep="\n")
+print(*sorted(list(songs.items()),key=lambda x: -x[1][0])[0:numprint],sep="\n")
 
 print()
 print("Days artist has been the most listened to (count):\n")
@@ -133,7 +130,7 @@ colorpalette = ['#2f4f4f','#8b4513','#808000','#008000','#000080','#9acd32',
 '#00fa9a','#dc143c','#00ffff','#00bfff','#0000ff','#d8bfd8','#db7093','#f0e68c',
 '#ff1493','#ffa07a','#ee82ee'] + ['#ffffff']*350
 
-mindate, maxdate = min(dayArtistBoth), max(dayArtistBoth)
+mindate, maxdate = min(dayArtists), max(dayArtists)
 
 def plotHeatMap(freqDailyTop: list, dailyTop: dict, title=None):
     top = {a[0]:i+1 for i,a in enumerate(freqDailyTop)}
