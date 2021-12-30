@@ -1,5 +1,5 @@
 import os, json, datetime, re
-from matplotlib.colors import ListedColormap
+from matplotlib.colors import ListedColormap, LogNorm
 import matplotlib.pyplot as plt
 import july
 
@@ -132,7 +132,7 @@ colorpalette = ['#2f4f4f','#8b4513','#808000','#008000','#000080','#9acd32',
 
 mindate, maxdate = min(dayArtists), max(dayArtists)
 
-def plotHeatMap(freqDailyTop: list, dailyTop: dict, title=None):
+def plotTopHeatMap(freqDailyTop: list, dailyTop: dict, title=None):
     top = {a[0]:i+1 for i,a in enumerate(freqDailyTop)}
 
     dates = july.utils.date_range(mindate,maxdate)
@@ -153,7 +153,33 @@ def plotHeatMap(freqDailyTop: list, dailyTop: dict, title=None):
     plt.title(title)
     plt.show()
 
-plotHeatMap(counttopartistday, topartistday, "Daily Top Artist (by count)")
-plotHeatMap(timetopartistday, topartistdayTime, "Daily Top Artist (by time)")
-plotHeatMap(counttopsongday, topsongday, "Daily Top Song (by count)")
-plotHeatMap(timetopsongday, topsongdayTime, "Daily Top Song (by time)")
+from math import log
+
+"""
+    type = 0: artist, 1: song
+    measure = 0: count, 1: time
+    name: artist / song
+"""
+def plotHeatMap(Type: int, name: str, measure = 0, cmap='golden', logScale=False):
+    dates = july.utils.date_range(mindate,maxdate)
+    dailyData = getArtistDaily(name,measure) if Type == 0 else getSongDaily(name,measure)
+    data = [dailyData.get(str(day),0) for day in dates]
+    if logScale:
+        data = map(lambda x: log(1+x), data)
+    ax = july.heatmap(dates, data, cmap='golden', colorbar=True, month_grid=True, title="{} (by {})".format(name, "time" if measure else "count"))
+    plt.axes = ax
+    plt.show()
+
+def getArtistDaily(artist: str, measure = 0):
+    return {day:artists.get(artist,[0,0])[measure] for day, artists in dayArtists.items()}
+
+def getSongDaily(song: str, measure = 0):
+    return {day:songs.get(song,[0,0])[measure] for day, songs in daySongs.items()}
+
+
+plotTopHeatMap(counttopartistday, topartistday, "Daily Top Artist (by count)")
+plotTopHeatMap(timetopartistday, topartistdayTime, "Daily Top Artist (by time)")
+plotTopHeatMap(counttopsongday, topsongday, "Daily Top Song (by count)")
+plotTopHeatMap(timetopsongday, topsongdayTime, "Daily Top Song (by time)")
+
+plotHeatMap(1, "All Too Well (10 Minute Version) (Taylor's Version) (From The Vault)", measure=1, logScale=True)
