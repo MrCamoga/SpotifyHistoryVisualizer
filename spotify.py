@@ -176,6 +176,17 @@ def getArtistDaily(artist: str, measure = 0):
 def getSongDaily(song: str, measure = 0):
     return {day:songs.get(song,[0,0])[measure] for day, songs in daySongs.items()}
 
+"""
+    Match all artists containing that string
+"""
+def searchArtist(artist: str):
+    return set(filter(lambda x: re.search(artist, x, re.IGNORECASE), artists))
+
+"""
+    Match all songs containing that string
+"""
+def searchSong(song: str):
+    return set(filter(lambda x: re.search(song, x, re.IGNORECASE), songs))
 
 plotTopHeatMap(counttopartistday, topartistday, "Daily Top Artist (by count)")
 plotTopHeatMap(timetopartistday, topartistdayTime, "Daily Top Artist (by time)")
