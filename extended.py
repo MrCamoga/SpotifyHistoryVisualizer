@@ -4,37 +4,8 @@ from matplotlib.colors import ListedColormap
 import pandas as pd
 import calplot
 import numpy as np
-from math import log
-
-
 
 numprint = 10
-
-"""
-artists = dict()
-songs = dict()
-songsByArtists = dict()
-
-topartistday = dict()
-counttopartistday = dict()
-
-topsongday = dict()
-counttopsongday = dict()
-
-topartistdayTime = dict()
-timetopartistday = dict()
-
-topsongdayTime = dict()
-timetopsongday = dict()
-
-dayArtists = dict()
-daySongs = dict()
-
-dayMinutes = dict()
-
-artistDay = dict()
-songDay = dict()
-"""
 
 history = []
 ignorerepeats = set()
@@ -81,45 +52,6 @@ for datafile in list(filter(lambda x: re.search('StreamingHistory[0-9]*\.json',x
     readYearHistory(datafile)
 
 df = pd.DataFrame(history, columns=['date','artist','trackname','time'])
-
-"""# artist day count
-for day in dayArtists:
-    topartistday[day] = sorted(dayArtists[day].items(),key=lambda x: -x[1][0])[0]
-
-for artist in topartistday.values():
-    counttopartistday[artist[0]] = counttopartistday.get(artist[0],0)+1
-    
-# artist day time
-for day in dayArtists:
-    topartistdayTime[day] = sorted(dayArtists[day].items(),key=lambda x: -x[1][1])[0]
-
-for artist in topartistdayTime.values():
-    timetopartistday[artist[0]] = timetopartistday.get(artist[0],0)+1
-
-# song day count
-for day in daySongs:
-    topsongday[day] = sorted(daySongs[day].items(),key=lambda x: -x[1][0])[0]
-
-for song in topsongday.values():
-    counttopsongday[song[0]] = counttopsongday.get(song[0],0)+1
-    
-# song day time
-for day in daySongs:
-    topsongdayTime[day] = sorted(daySongs[day].items(),key=lambda x: -x[1][1])[0]
-
-for song in topsongdayTime.values():
-    timetopsongday[song[0]] = timetopsongday.get(song[0],0)+1
-
-for day, artist in dayArtists.items():
-    dayMinutes[day] = sum(a[1] for a in artist.values())
-
-counttopartistday = sorted(list(counttopartistday.items()),key=lambda x: -x[1])
-counttopsongday = sorted(list(counttopsongday.items()),key=lambda x: -x[1])
-
-timetopartistday = sorted(list(timetopartistday.items()),key=lambda x: -x[1])
-timetopsongday = sorted(list(timetopsongday.items()),key=lambda x: -x[1])
-"""
-
 dfartists = df.groupby('artist')
 dfsongs = df.groupby('trackname')
 
@@ -164,53 +96,10 @@ print(df.groupby([pd.Grouper(key='date',freq='D'),'trackname']).sum().groupby(le
 
 
 
-# plots pandas
-
-plotartists = ["Taylor Swift","Barclay James Harvest","Leonard Cohen","Neil Young","The Alan Parsons Project","Camel","Pink Floyd","Crosby, Stills, Nash & Young","Bob Dylan"]
-
-"""def plotTopArtists(count=20,legend=True):
-    plotartists = [i[0] for i in sorted(list(artists.items()),key=lambda x: -x[1][1])[0:count]]
-    df = [pd.DataFrame.from_dict(artistDay[artist], orient='index', columns=[artist]) for artist in plotartists]
-    for d in df:
-        d.sort_index(inplace=True)
-        d.index = pd.to_datetime(d.index)
-        plt.plot(d.cumsum(),label=d.columns[0])
-    if legend: 
-        plt.legend()
-    plt.show()
-
-def plotTopSongs(count=20,legend=True):
-    plotsongs = [i[0] for i in sorted(list(songs.items()),key=lambda x: -x[1][1])[0:count]]
-    df = [pd.DataFrame.from_dict(songDay[song], orient='index', columns=[song]) for song in plotsongs]
-    for d in df:
-        d.sort_index(inplace=True)
-        d.index = pd.to_datetime(d.index)
-        plt.plot(d.cumsum(),label=d.columns[0],linewidth=2)
-
-    plt.xlabel("Date")
-    plt.ylabel("Time (minutes)")
-    if legend:
-        plt.legend()
-    plt.show()
-
-def plotArtistSongs(artist,legend=True):
-    plotsongs = songsByArtists[artist]
-    df = [pd.DataFrame.from_dict(songDay[song], orient='index', columns=[song]) for song in plotsongs]
-    for d in df:
-        d.sort_index(inplace=True)
-        d.index = pd.to_datetime(d.index)
-        plt.plot(d.cumsum(),label=d.columns[0],linewidth=2)
-
-    plt.xlabel("Date")
-    plt.ylabel("Time (minutes)")
-    if legend:
-        plt.legend()
-    plt.show()
-"""
 colorpalette = ['#2f4f4f','#8b4513','#808000','#008000','#000080','#9acd32',
 '#8fbc8f','#8b008b','#ff0000','#ff8c00','#ffd700','#6a5acd','#7fff00','#9400d3',
 '#00fa9a','#dc143c','#00ffff','#00bfff','#0000ff','#d8bfd8','#db7093','#f0e68c',
-'#ff1493','#ffa07a'] + ['#ffffff'] #,'#ee82ee'
+'#ff1493','#ffa07a'] + ['#ffffff']
 
 def getArtistDayMinutesCumSum(artist):
     return df[df["artist"]==artist].groupby(pd.Grouper(key='date',freq='D')).sum().squeeze().cumsum()
@@ -293,53 +182,3 @@ def calplotArtistMinutes(artist):
     series = df[df["artist"]==artist].groupby(pd.Grouper(key='date',freq='D')).sum().squeeze()
     plt.axis = calplot.calplot(series)
     plt.show()
-
-
-
-"""
-def plotArtistMinutes(artist):
-    minday = [artists.get(artist,[0,0])[1] for artists in dayArtists.values()] #fix 
-    days = [np.datetime64(date) for date in dayArtists.keys()]
-    events = pd.Series(minday, index=days)
-    plt.axis = calplot.calplot(events, dropzero=True)
-    plt.show()
-
-def plotSongMinutes(song):
-    minday = [songs.get(song,[0,0])[1] for songs in daySongs.values()] #fix 
-    days = [np.datetime64(date) for date in daySongs.keys()]
-    events = pd.Series(minday, index=days)
-    plt.axis = calplot.calplot(events,dropzero=True)
-    plt.show()
-
-def plotTopArtistCount():
-    top = {a[0]:i+1 for i,a in enumerate(counttopartistday)}
-    cmap=ListedColormap(colorpalette[:len(top)])
-
-    events = pd.Series([min(top.get(artist[0]),26) for artist in topartistday.values()], index=[np.datetime64(date) for date in topartistday.keys()])
-    plt.axis = calplot.calplot(events, cmap = cmap, edgecolor = "#000000", dropzero=True)
-    plt.show()
-
-def plotTopArtistTime():
-    top = {a[0]:i+1 for i,a in enumerate(timetopartistday)}
-    cmap=ListedColormap(colorpalette[:len(top)])
-
-    events = pd.Series([min(top.get(artist[0]),26) for artist in topartistdayTime.values()], index=[np.datetime64(date) for date in topartistdayTime.keys()])
-    plt.axis = calplot.calplot(events, cmap = cmap, edgecolor = "#000000", dropzero=True)
-    plt.show()
-
-def plotTopSongCount():
-    top = {a[0]:i+1 for i,a in enumerate(counttopsongday)}
-    cmap=ListedColormap(colorpalette[:len(top)])
-
-    events = pd.Series([min(top.get(song[0]),26) for song in topsongday.values()], index=[np.datetime64(date) for date in topsongday.keys()])
-    plt.axis = calplot.calplot(events, cmap = cmap, edgecolor = "#000000", dropzero=True)
-    plt.show()
-
-def plotTopSongTime():
-    top = {a[0]:i+1 for i,a in enumerate(timetopsongday)}
-    cmap=ListedColormap(colorpalette[:25])
-
-    events = pd.Series([min(top.get(song[0]),25) for song in topsongdayTime.values()], index=[np.datetime64(date) for date in topsongdayTime.keys()])
-    plt.axis = calplot.calplot(events, cmap = cmap, edgecolor = "#000000", dropzero=True)
-    plt.show()
-"""
