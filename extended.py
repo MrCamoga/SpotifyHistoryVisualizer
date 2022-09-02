@@ -168,6 +168,15 @@ def calplotTopArtist(count=10):
     plt.axis = calplot.calplot(series.apply(lambda x: d.get(x,26)),cmap=cmap,edgecolor="#000000",dropzero=True)
     plt.show()
 
+def calplotTopSong(count=10):
+    top = df.groupby([pd.Grouper(key='date',freq='D'),'trackname']).sum().groupby('date')['time'].idxmax().str[1].value_counts().head(count)
+    d = {a:i+1 for i,a in enumerate(top.keys())}
+    series = df.groupby([pd.Grouper(key='date',freq='D'),'trackname']).sum().groupby('date')['time'].idxmax().str[1]
+    cmap = ListedColormap(colorpalette)
+
+    plt.axis = calplot.calplot(series.apply(lambda x: d.get(x,26)),cmap=cmap,edgecolor="#000000",dropzero=True)
+    plt.show()
+
 def calplotTotalMinutes():
     series = df.groupby(pd.Grouper(key='date',freq='D')).sum().squeeze()
     plt.axis = calplot.calplot(series)
